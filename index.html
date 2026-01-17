@@ -380,6 +380,23 @@
   overflow: visible;
 }
 
+.product-title {
+  font-size: 1rem;          /* reduz um pouco no mobile */
+  white-space: normal;      /* permite quebrar linha */
+  word-wrap: break-word;    /* quebra palavras longas */
+  overflow: visible;        /* não corta o texto */
+  text-align: center;       /* centraliza para ficar elegante */
+  margin-bottom: 8px;
+}
+
+/* Ajuste específico para telas pequenas */
+@media (max-width: 480px) {
+  .product-title {
+    font-size: 0.9rem;      /* ainda menor no celular */
+    line-height: 1.2;       /* melhora leitura */
+  }
+}
+
 .btn-toggle-desc {
   background: none;
   border: none;
@@ -850,7 +867,7 @@ CNPJ: 19.401.284/0001-56 | AVENIDA PRESIDENTE MEDICE, PRÓXIMO A PRAÇA DA ONÇA
                 <img src="${item.img}" class="product-img" loading="lazy" alt="${item.name}">
             </div>
             <div class="product-info">
-                <h3 class="product-title"><i class="fas fa-burger"></i> ${item.name}</h3>
+                <h3 class="product-title"> ${item.name}</h3>
                 <p class="product-desc">${item.desc}</p>
                 <button class="btn-toggle-desc">Ver mais</button>
                 <div class="product-price">R$ ${item.price.toFixed(2).replace('.', ',')}</div>
