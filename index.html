@@ -201,6 +201,17 @@
             border: 3px solid rgba(255,255,255,0.2);
             transition: transform 0.2s;
         }
+        .cart-footer {
+  position: sticky;
+  bottom: 0;
+  background: #0d0d0d;
+  border-top: 2px solid #333;
+  padding: 15px;
+}
+.btn-checkout {
+  margin-bottom: env(safe-area-inset-bottom);
+}
+
         .cart-float-btn:active { transform: scale(0.95); }
         .cart-count {
             position: absolute; top: 0px; right: 0px; background: #d32f2f; color: white;
@@ -378,6 +389,58 @@
   text-decoration: underline;
   margin-top: 4px;
 }
+.logo-img {
+  display: block;
+  max-width: 220px;
+  margin: 0 auto;
+  filter: drop-shadow(0 0 10px #ffbf00);
+  animation: glow 2s ease-in-out infinite alternate;
+  border-radius: 100px;
+}
+
+@keyframes glow {
+  from { filter: drop-shadow(0 0 5px #ffbf00); }
+  to { filter: drop-shadow(0 0 15px #ffbf00); }
+}
+.slogan {
+  font-family: 'Roboto', sans-serif;
+  font-style: italic;
+  font-size: 1.2rem;
+  color: #ffbf00;
+  background: rgba(0,0,0,0.7);
+  padding: 8px 15px;
+  border-radius: 12px;
+  display: inline-block;
+  box-shadow: 0 0 12px rgba(255,191,0,0.4);
+  animation: fadeGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes fadeGlow {
+  from { text-shadow: 0 0 5px #ffbf00; }
+  to   { text-shadow: 0 0 15px #ffbf00; }
+}
+.search-bar {
+  text-align: center;
+  margin: 15px 0;
+}
+
+#search-input {
+  width: 50%;
+  max-width: 400px;
+  padding: 10px;
+  border-radius: 20px;
+  border: 2px solid var(--primary-color);
+  background: #222;
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+  text-align: center;
+}
+
+#search-input:focus {
+  border-color: #ffbf00;
+  box-shadow: 0 0 8px #ffbf00;
+}
 
     </style>
 </head>
@@ -385,11 +448,16 @@
 
     <header>
        <!-- <marquee behavior="7" direction="left"> <h1><i class="fas fa-hamburger"></i> Burger Grill</h1></marquee> -->
-        <img class="bg" src="bg.png" alt=""><br><br>
-        <p style="background-color: #000; padding: 5px; border-radius: 10px;">O sabor autêntico na brasa</p><br>
+       <img src="bg.png" alt="Logo Burger Grill" class="logo-img">
+<br><br>
+        <p class="slogan">Do fogo à mesa, com carinho e sabor.</p><br>
+
         <div id="status-banner" class="status-banner">
     <span id="status-text">Verificando horário...</span>
   </div>
+  <div class="search-bar">
+  <input type="text" id="search-input" placeholder="Buscar item..." />
+</div>
     </header>
     
     <div class="main-content">
@@ -770,23 +838,46 @@ CNPJ: 19.401.284/0001-56 | AVENIDA PRESIDENTE MEDICE, PRÓXIMO A PRAÇA DA ONÇA
         window.lastObs = '';
 
         function renderMenu(category = 'all') {
-            const menuGrid = document.getElementById('menu-grid');
-            menuGrid.innerHTML = '';
-            const filtered = category === 'all' ? menuData : menuData.filter(item => item.category === category);
-            filtered.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'product-card';
-                card.innerHTML = `
-                    <div class="product-img-container"><img src="${item.img}" class="product-img" loading="lazy" alt="${item.name}"></div>
-                    <div class="product-info">
-                        <h3 class="product-title"><i class="fas fa-burger"></i> ${item.name}</h3>
-                        <p class="product-desc">${item.desc}</p>
-                        <div class="product-price">R$ ${item.price.toFixed(2).replace('.', ',')}</div>
-                        <button class="btn-add" onclick="openOptions(${item.id})"><i class="fas fa-plus"></i> Adicionar</button>
-                    </div>`;
-                menuGrid.appendChild(card);
-            });
-        }
+    const menuGrid = document.getElementById('menu-grid');
+    menuGrid.innerHTML = '';
+    const filtered = category === 'all' ? menuData : menuData.filter(item => item.category === category);
+    
+    filtered.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `
+            <div class="product-img-container">
+                <img src="${item.img}" class="product-img" loading="lazy" alt="${item.name}">
+            </div>
+            <div class="product-info">
+                <h3 class="product-title"><i class="fas fa-burger"></i> ${item.name}</h3>
+                <p class="product-desc">${item.desc}</p>
+                <button class="btn-toggle-desc">Ver mais</button>
+                <div class="product-price">R$ ${item.price.toFixed(2).replace('.', ',')}</div>
+                <button class="btn-add" onclick="openOptions(${item.id})">
+                    <i class="fas fa-plus"></i> Adicionar
+                </button>
+            </div>`;
+        menuGrid.appendChild(card);
+    });
+}
+
+function filterMenu(cat) {
+    document.querySelectorAll('.btn-category').forEach(btn => btn.classList.remove('active'));
+    if (event) event.target.classList.add('active');
+    renderMenu(cat);
+
+    const container = document.querySelector('.main-content');
+    if (container) container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('btn-toggle-desc')) {
+    const card = e.target.closest('.product-card');
+    card.classList.toggle('expanded');
+    e.target.textContent = card.classList.contains('expanded') ? 'Ver menos' : 'Ver mais';
+  }
+});
+
 
         function filterMenu(cat) {
             document.querySelectorAll('.btn-category').forEach(btn => btn.classList.remove('active'));
@@ -1140,28 +1231,55 @@ document.getElementById('cust-bairro').addEventListener('change', () => {
                 console.error("Erro ao salvar pedido:", e);
             }
         };
-        // Adiciona botão "Ver mais" em cada card
-document.addEventListener('DOMContentLoaded', () => {
-  const cards = document.querySelectorAll('.product-card');
-  cards.forEach(card => {
-    const desc = card.querySelector('.product-desc');
-    if (desc) {
-      const btn = document.createElement('button');
-      btn.className = 'btn-toggle-desc';
-      btn.textContent = 'Ver mais';
-      desc.insertAdjacentElement('afterend', btn);
-    }
-  });
-});
-
-// Alterna expandido/compacto
-document.addEventListener('click', function(e) {
-  if (e.target.classList.contains('btn-toggle-desc')) {
-    const card = e.target.closest('.product-card');
-    card.classList.toggle('expanded');
-    e.target.textContent = card.classList.contains('expanded') ? 'Ver menos' : 'Ver mais';
+        // Adiciona botão buscar.
+document.getElementById('search-input').addEventListener('input', function() {
+  const query = this.value.trim().toLowerCase();
+  
+  if (query.length >= 3) {
+    const filtered = menuData.filter(item =>
+      item.name.toLowerCase().includes(query) ||
+      item.desc.toLowerCase().includes(query)
+    );
+    renderFilteredMenu(filtered);
+  } else {
+    renderMenu(); // volta ao menu padrão
   }
 });
+
+function renderFilteredMenu(filteredItems) {
+  const menuGrid = document.getElementById('menu-grid');
+  menuGrid.innerHTML = '';
+  
+  if (filteredItems.length === 0) {
+    menuGrid.innerHTML = '<p style="text-align:center;color:#aaa;">Nenhum item encontrado.</p>';
+    return;
+  }
+
+  filteredItems.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'product-card';
+    card.innerHTML = `
+      <div class="product-img-container">
+        <img src="${item.img}" class="product-img" loading="lazy" alt="${item.name}">
+      </div>
+      <div class="product-info">
+        <h3 class="product-title"><i class="fas fa-burger"></i> ${item.name}</h3>
+        <p class="product-desc">${item.desc}</p>
+        <button class="btn-toggle-desc">Ver mais</button>
+        <div class="product-price">R$ ${item.price.toFixed(2).replace('.', ',')}</div>
+        <button class="btn-add" onclick="openOptions(${item.id})"><i class="fas fa-plus"></i> Adicionar</button>
+      </div>`;
+    menuGrid.appendChild(card);
+  });
+}
+document.querySelectorAll('#cust-name, #cust-phone, #cust-address, #cust-bairro, #cust-payment')
+  .forEach(input => {
+    input.addEventListener('focus', () => {
+      const btn = document.querySelector('.btn-checkout');
+      btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  });
+
 
     </script>
 </body>
