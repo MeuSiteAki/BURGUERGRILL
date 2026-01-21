@@ -458,6 +458,17 @@
   border-color: #ffbf00;
   box-shadow: 0 0 8px #ffbf00;
 }
+.menu-title h2 {
+  font-family: 'Rye', cursive;
+  color: var(--primary-color);
+  text-align: center;
+  font-size: 1.6rem;
+  margin: 10px 0;
+  text-shadow: 2px 2px 6px #000;
+  letter-spacing: 2px;
+  background-color: #121212;
+  padding: 8px;
+}
 
     </style>
 </head>
@@ -475,8 +486,9 @@
   <div class="search-bar">
   <input type="text" id="search-input" placeholder="Buscar item..." />
 </div>
+
     </header>
-    
+    <div class="menu-title"> <h2>🔥 MENU</h2> </div>
     <div class="main-content">
         <nav class="category-nav">
     <button class="btn-category active" onclick="filterMenu('all')">
@@ -1086,139 +1098,177 @@ document.getElementById('cust-bairro').addEventListener('change', () => {
 });
 
 
+async function startCheckoutFlow() {
+  if (cart.length === 0) {
+    return Swal.fire({ 
+      icon: 'error', 
+      title: 'Carrinho vazio!', 
+      background: '#1a1a1a', 
+      color: '#fff' 
+    });
+  }
 
-        async function startCheckoutFlow() {
-            if (cart.length === 0) return Swal.fire({ icon: 'error', title: 'Carrinho vazio!', background: '#1a1a1a', color: '#fff' });
+  const fields = ['cust-name', 'cust-phone', 'cust-address', 'cust-bairro', 'cust-payment'];
+  for (const f of fields) {
+    if (!document.getElementById(f).value) {
+      return Swal.fire({ 
+        icon: 'warning', 
+        title: 'Faltam dados', 
+        text: 'Preencha todos os campos obrigatórios!', 
+        background: '#1a1a1a', 
+        color: '#fff', 
+        confirmButtonColor: '#ffbf00' 
+      });
+    }
+  }
 
-            const fields = ['cust-name', 'cust-phone', 'cust-address', 'cust-bairro', 'cust-payment'];
-            for (const f of fields) {
-                if (!document.getElementById(f).value) return Swal.fire({ icon: 'warning', title: 'Faltam dados', text: 'Preencha todos os campos obrigatórios!', background: '#1a1a1a', color: '#fff', confirmButtonColor: '#ffbf00' });
-            }
+  const obsText = window.lastObs || '';
+  const paymentType = document.getElementById('cust-payment').value;
+  const currentTotal = updateCartUI();
+  
+  if (paymentType === 'Dinheiro') {
+    handleCashPayment(currentTotal, obsText);
+  } else if (paymentType === 'Pix') {
+    handlePixPayment(currentTotal, obsText);
+  } else {
+    finalizeOrder(obsText, 'Cartão (Na entrega)');
+  }
+}
 
-            const obsText = window.lastObs || '';
+async function handleCashPayment(total, obs) {
+  const { value: cashValue } = await Swal.fire({
+    title: 'Pagamento em Dinheiro',
+    text: `O total é R$ ${total.toFixed(2).replace('.', ',')}. Você vai pagar com quanto?`,
+    input: 'number',
+    inputAttributes: { min: total, step: "0.01" },
+    background: '#1a1a1a', color: '#fff',
+    confirmButtonText: 'Calcular Troco', confirmButtonColor: '#25d366',
+    showCancelButton: true
+  });
 
-            const paymentType = document.getElementById('cust-payment').value;
-            const currentTotal = updateCartUI();
-            
-            if (paymentType === 'Dinheiro') {
-                handleCashPayment(currentTotal, obsText);
-            } else if (paymentType === 'Pix') {
-                handlePixPayment(currentTotal, obsText);
-            } else {
-                finalizeOrder(obsText, 'Cartão (Na entrega)');
-            }
-        }
-
-        async function handleCashPayment(total, obs) {
-            const { value: cashValue } = await Swal.fire({
-                title: 'Pagamento em Dinheiro',
-                text: `O total é R$ ${total.toFixed(2).replace('.', ',')}. Você vai pagar com quanto?`,
-                input: 'number',
-                inputAttributes: { min: total, step: "0.01" },
-                background: '#1a1a1a', color: '#fff',
-                confirmButtonText: 'Calcular Troco', confirmButtonColor: '#25d366',
-                showCancelButton: true
-            });
-
-            if (cashValue) {
-                const paid = parseFloat(cashValue);
-                if (paid < total) return Swal.fire({icon: 'error', title:'Valor insuficiente', background:'#1a1a1a', color:'#fff'});
-                const change = paid - total;
-                
-                await Swal.fire({
-                    title: 'Confirmação',
-                    html: `<p><i class="fas fa-money-bill-wave" style="color:#ffbf00;"></i> Total: R$ ${total.toFixed(2)}</p><p><i class="fas fa-hand-holding-usd" style="color:#ffbf00;"></i> Pagamento: R$ ${paid.toFixed(2)}</p><h3 style="color:#ffbf00"><i class="fas fa-coins"></i> Troco: R$ ${change.toFixed(2)}</h3>`,
-                    background: '#1a1a1a', color: '#fff',
-                    confirmButtonText: 'Enviar Pedido', confirmButtonColor: '#25d366'
-                });
-
-                finalizeOrder(obs, `Dinheiro (Troco para R$ ${paid.toFixed(2)} - Troco: R$ ${change.toFixed(2)})`);
-            }
-        }
-
-        async function handlePixPayment(total, obs) {
-            const payload = buildPixBRCode({
-                key: '029.630.583-90',
-                name: 'Carlos de Freitas Rocha',
-                city: 'Local', 
-                amount: total.toFixed(2)
-            });
-
-            await Swal.fire({
-                title: 'Pagamento Pix',
-                background: '#1a1a1a', color: '#fff',
-                html: `
-                    <div class="qr-wrapper" id="pix-qr"></div>
-                    <div class="pix-code-box" id="pix-payload">${payload}</div>
-                    <button class="btn-checkout" onclick="copyPix()"><i class="fas fa-copy"></i> Copiar Código Pix</button>
-                `,
-                didOpen: () => {
-                    new QRCode(document.getElementById("pix-qr"), { text: payload, width: 180, height: 180 });
-                },
-                confirmButtonText: 'Já Paguei / Enviar Pedido',
-                confirmButtonColor: '#25d366'
-            });
-            finalizeOrder(obs, 'Pix (QR Code)');
-        }
-
-        window.copyPix = () => {
-            const text = document.getElementById('pix-payload').innerText;
-            navigator.clipboard.writeText(text);
-            Swal.showValidationMessage('Código Copiado!');
-        }
-
-       function finalizeOrder(obs, payDetails) {
-    const name = document.getElementById('cust-name').value;
-    const phone = document.getElementById('cust-phone').value;
-    const addr = document.getElementById('cust-address').value;
-    const bairro = document.getElementById('cust-bairro').value;
-    const total = updateCartUI();
-
-    let msg = `*🍔 NOVO PEDIDO - BURGUER GRILL*\n\n`;
-    msg += `*Cliente:* ${name}\n`;
-    msg += `*Telefone:* ${phone}\n`;
-    msg += `*Endereço:* ${addr} - ${bairro}\n`;
-    msg += `*Pagamento:* ${payDetails}\n\n`;
+  if (cashValue) {
+    const paid = parseFloat(cashValue);
+    if (paid < total) {
+      return Swal.fire({icon: 'error', title:'Valor insuficiente', background:'#1a1a1a', color:'#fff'});
+    }
+    const change = paid - total;
     
-    msg += `*ITENS:*\n`;
-    cart.forEach(item => {
-        msg += `• 1x ${item.name} (R$ ${item.totalPrice.toFixed(2)})\n`;
-        if(item.extras.length > 0) msg += `  _Adicionais: ${item.extras.map(e => e.name).join(', ')}_\n`;
+    await Swal.fire({
+      title: 'Confirmação',
+      html: `<p><i class="fas fa-money-bill-wave" style="color:#ffbf00;"></i> Total: R$ ${total.toFixed(2)}</p>
+             <p><i class="fas fa-hand-holding-usd" style="color:#ffbf00;"></i> Pagamento: R$ ${paid.toFixed(2)}</p>
+             <h3 style="color:#ffbf00"><i class="fas fa-coins"></i> Troco: R$ ${change.toFixed(2)}</h3>`,
+      background: '#1a1a1a', color: '#fff',
+      confirmButtonText: 'Enviar Pedido', confirmButtonColor: '#25d366'
     });
 
-    if(obs) msg += `\n*Obs:* ${obs}\n`;
-    msg += `\n*TOTAL: R$ ${total.toFixed(2)}*`;
-
-    // 🔧 CORREÇÃO: salvar itens no formato nome||preço||obs
-    const itensStr = cart.map(item => {
-        const extrasStr = item.extras.map(e => `${e.name}||${e.price.toFixed(2)}||`).join(';');
-        return `${item.name}||${item.price.toFixed(2)}||${obs || ''}${extrasStr ? ';' + extrasStr : ''}`;
-    }).join(';');
-
-    const orderPayload = {
-        cliente: name,
-        telefone: phone,
-        endereco: addr,
-        bairro: bairro,
-        pagamento: payDetails,
-        itens: itensStr,   // agora no formato correto
-        obs: obs || '',
-        total: total.toFixed(2),
-        createdAt: new Date().toISOString()
-    };
-
-    if (window.saveOrderToFirestore) {
-        window.saveOrderToFirestore(orderPayload).catch(()=>{ /* silencioso */ });
-    }
-
-    const waUrl = `https://wa.me/5599992247544?text=${encodeURIComponent(msg)}`;
-    window.open(waUrl, '_blank');
-    
-    cart = [];
-    updateCartUI();
-    toggleCart();
-    Swal.fire({ icon: 'success', title: 'Pedido Enviado!', text: 'Você será redirecionado para o WhatsApp.', background: '#1a1a1a', color: '#fff' });
+    finalizeOrder(obs, `Dinheiro (Troco para R$ ${paid.toFixed(2)} - Troco: R$ ${change.toFixed(2)})`);
+  }
 }
+
+async function handlePixPayment(total, obs) {
+  const payload = buildPixBRCode({
+    key: '029.630.583-90',
+    name: 'Carlos de Freitas Rocha',
+    city: 'Local', 
+    amount: total.toFixed(2)
+  });
+
+  await Swal.fire({
+    title: 'Pagamento Pix',
+    background: '#1a1a1a', color: '#fff',
+    html: `
+      <div class="qr-wrapper" id="pix-qr"></div>
+      <div class="pix-code-box" id="pix-payload">${payload}</div>
+      <button class="btn-checkout" onclick="copyPix()"><i class="fas fa-copy"></i> Copiar Código Pix</button>
+    `,
+    didOpen: () => {
+      new QRCode(document.getElementById("pix-qr"), { text: payload, width: 180, height: 180 });
+    },
+    confirmButtonText: 'Já Paguei / Enviar Pedido',
+    confirmButtonColor: '#25d366'
+  });
+  finalizeOrder(obs, 'Pix (QR Code)');
+}
+
+window.copyPix = () => {
+  const text = document.getElementById('pix-payload').innerText;
+  navigator.clipboard.writeText(text);
+  Swal.showValidationMessage('Código Copiado!');
+}
+
+function finalizeOrder(obs, payDetails) {
+  const name = document.getElementById('cust-name').value;
+  const phone = document.getElementById('cust-phone').value;
+  const addr = document.getElementById('cust-address').value;
+  const bairro = document.getElementById('cust-bairro').value;
+  const total = updateCartUI();
+
+  // 🔧 Agrupar itens iguais
+  const grouped = {};
+  cart.forEach(item => {
+    const key = item.name + JSON.stringify(item.extras);
+    if (!grouped[key]) {
+      grouped[key] = { ...item, qty: 0 };
+    }
+    grouped[key].qty += 1;
+  });
+
+  // Monta mensagem WhatsApp
+  let msg = `*🍔 NOVO PEDIDO - BURGUER GRILL*\n\n`;
+  msg += `*Cliente:* ${name}\n`;
+  msg += `*Telefone:* ${phone}\n`;
+  msg += `*Endereço:* ${addr} - ${bairro}\n`;
+  msg += `*Pagamento:* ${payDetails}\n\n`;
+
+  msg += `*ITENS:*\n`;
+  Object.values(grouped).forEach(item => {
+    msg += `• ${item.qty}x ${item.name} (R$ ${(item.totalPrice * item.qty).toFixed(2)})\n`;
+    if (item.extras.length > 0) {
+      msg += `  _Adicionais: ${item.extras.map(e => e.name).join(', ')}_\n`;
+    }
+  });
+
+  if (obs) msg += `\n*Obs:* ${obs}\n`;
+  msg += `\n*TOTAL: R$ ${total.toFixed(2)}*`;
+
+  // 🔧 Salvar itens no formato agrupado
+  const itensStr = Object.values(grouped).map(item => {
+    const extrasStr = item.extras.length ? ` + [${item.extras.map(e=>e.name).join(', ')}]` : '';
+    return `${item.qty}x ${item.name}||${(item.price * item.qty).toFixed(2)}||${obs || ''}${extrasStr}`;
+  }).join(';');
+
+  const orderPayload = {
+    cliente: name,
+    telefone: phone,
+    endereco: addr,
+    bairro: bairro,
+    pagamento: payDetails,
+    itens: itensStr,
+    obs: obs || '',
+    total: total.toFixed(2),
+    createdAt: new Date().toISOString()
+  };
+
+  if (window.saveOrderToFirestore) {
+    window.saveOrderToFirestore(orderPayload).catch(()=>{ /* silencioso */ });
+  }
+
+  const waUrl = `https://wa.me/5599991444176?text=${encodeURIComponent(msg)}`;
+  window.open(waUrl, '_blank');
+  
+  cart = [];
+  updateCartUI();
+  toggleCart();
+  Swal.fire({ 
+    icon: 'success', 
+    title: 'Pedido Enviado!', 
+    text: 'Você será redirecionado para o WhatsApp.', 
+    background: '#1a1a1a', 
+    color: '#fff' 
+  });
+}
+
 
     </script>
 
@@ -1297,6 +1347,16 @@ document.querySelectorAll('#cust-name, #cust-phone, #cust-address, #cust-bairro,
     });
   });
 
+// Bloqueios de segurança (mantidos como no original)
+document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey && (e.key === 'u' || e.key === 'U')) { e.preventDefault(); }
+    if (e.key === 'F12') { e.preventDefault(); }
+});
+document.addEventListener('keydown', function (event) {
+    if (event.ctrlKey && event.shiftKey && event.key === 'I') { event.preventDefault(); }
+});
+document.addEventListener('contextmenu', function (event) { event.preventDefault(); });
+</script>
 
     </script>
 </body>
