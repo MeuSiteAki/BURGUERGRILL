@@ -411,13 +411,13 @@
   max-width: 220px;
   margin: 0 auto;
   filter: drop-shadow(0 0 10px #ffbf00);
-  animation: glow 2s ease-in-out infinite alternate;
+  animation: glow 3s ease-in-out infinite alternate;
   border-radius: 100px;
 }
 
 @keyframes glow {
   from { filter: drop-shadow(0 0 5px #ffbf00); }
-  to { filter: drop-shadow(0 0 15px #ffbf00); }
+  to { filter: drop-shadow(0 0 25px #ffbf00); }
 }
 .slogan {
   font-family: 'Roboto', sans-serif;
@@ -623,7 +623,7 @@ CNPJ: 19.401.284/0001-56 | AVENIDA PRESIDENTE MEDICE, PRÓXIMO A PRAÇA DA ONÇA
                 </select>
 
                 <button class="btn-checkout" onclick="startCheckoutFlow()">
-                    <i class="fas fa-paper-plane"></i> Continuar
+                    <i class="fas fa-paper-plane"></i> Enviar Pedido
                 </button>
             </div>
         </div>
@@ -688,93 +688,96 @@ CNPJ: 19.401.284/0001-56 | AVENIDA PRESIDENTE MEDICE, PRÓXIMO A PRAÇA DA ONÇA
         }
 
         // --- SISTEMA DA LOJA ---
-       const menuData = [
-  // --- BURGUERS ---
+    const menuData = [
+  { id: 111, name: 'COMBO GRILL', category: 'burguers', price: 100.00,
+    desc: 'Um Grill Cheddar, um Grill Clássico, um Frango Burger, um Smash Grill, 13 nuggets, uma porção de batata frita, uma Coca-Cola de 1 litro e nosso molho especial da casa. Tudo isso em um combo completo, variado e cheio de sabor!.',
+    img: 'COMBO GRILL.png' },
   { id: 101, name: 'Grill Burguer', category: 'burguers', price: 32.00,
     desc: 'Pão brioche selado na chapa, maionese caseira, duas carnes de 170g, duplo cheddar, duplo bacon, alface, tomate, cebola reduzida na manteiga e molho especial da casa. Acompanha fritas.',
-    img: 'https://img.freepik.com/fotos-gratis/hamburguer-saboroso-isolado-no-fundo-branco-fast-food-hamburguer-fresco-com-carne-e-queijo_90220-1063.jpg' },
+    img: 'GRILL BURGER.png' },
   { id: 102, name: 'Picanha Grill', category: 'burguers', price: 34.00,
     desc: 'Pão brioche amanteigado, hambúrguer 170g de picanha, bacon, queijo mussarela, cebola premium, maionese caseira, alface e tomate. Acompanha fritas.',
-    img: 'https://img.freepik.com/fotos-gratis/hamburguer-saboroso-isolado-no-fundo-branco-fast-food-hamburguer-fresco-com-carne-e-queijo_90220-1063.jpg' },
+    img: 'PICANHA GRILL.png' },
   { id: 103, name: 'Burguer de Filé', category: 'burguers', price: 33.00,
     desc: 'Pão brioche com gergelim, maionese caseira, alface e tomate, 150g de filé mignon em cubos, cebola roxa, queijo mussarela, molho de alho. Acompanha fritas.',
-    img: 'https://img.freepik.com/fotos-gratis/hamburguer-saboroso-isolado-no-fundo-branco-fast-food-hamburguer-fresco-com-carne-e-queijo_90220-1063.jpg' },
+    img: 'BURGER DE FILÉ.png' },
   { id: 104, name: 'Caramelizado', category: 'burguers', price: 27.00,
     desc: 'Pão brioche amanteigado, alface e tomate, hambúrguer bovino de 170g, queijo mussarela, cebola caramelizada, bacon, molho especial da casa.',
-    img: 'https://img.freepik.com/fotos-gratis/hamburguer-saboroso-isolado-no-fundo-branco-fast-food-hamburguer-fresco-com-carne-e-queijo_90220-1063.jpg' },
+    img: 'CARAMELIZADO.png' },
   { id: 105, name: 'Smash Gill', category: 'burguers', price: 20.00,
     desc: 'Pão brioche, carne smash de 100g, alface, tomate, cebola roxa, queijo cheddar, molho defumado.',
-    img: 'https://img.freepik.com/fotos-gratis/hamburguer-saboroso-isolado-no-fundo-branco-fast-food-hamburguer-fresco-com-carne-e-queijo_90220-1063.jpg' },
+    img: 'SMASH GRILL.png' },
   { id: 106, name: 'Smash Grill Duplo', category: 'burguers', price: 22.00,
     desc: 'Pão brioche, 2 carnes smash de 100g, alface, tomate, cebola roxa, duplo cheddar, molho defumado.',
-    img: 'https://img.freepik.com/fotos-gratis/hamburguer-saboroso-isolado-no-fundo-branco-fast-food-hamburguer-fresco-com-carne-e-queijo_90220-1063.jpg' },
+    img: 'SMASH GRILL DUPLO.png' },
   { id: 107, name: 'Grill Clássico', category: 'burguers', price: 24.00,
     desc: 'Pão amanteigado, alface, tomate, hambúrguer bovino de 150g, queijo mussarela e molho especial da casa.',
-    img: 'https://img.freepik.com/fotos-gratis/hamburguer-saboroso-isolado-no-fundo-branco-fast-food-hamburguer-fresco-com-carne-e-queijo_90220-1063.jpg' },
+    img: 'GRILL CLASSICO.png' },
   { id: 108, name: 'Grill Cheddar', category: 'burguers', price: 23.00,
     desc: 'Pão amanteigado, alface, tomate, hambúrguer bovino 150g, cheddar e molho especial da casa.',
-    img: 'https://img.freepik.com/fotos-gratis/hamburguer-saboroso-isolado-no-fundo-branco-fast-food-hamburguer-fresco-com-carne-e-queijo_90220-1063.jpg' },
+    img: 'GRILL CHEDDAR.png' },
   { id: 109, name: 'Frango Burguer', category: 'burguers', price: 23.00,
     desc: 'Pão artesanal, alface fresco, tomate selecionado, molho especial da casa, 150g de filé de frango grelhado, queijo mussarela derretido. Acompanha batata P.',
-    img: 'https://img.freepik.com/fotos-gratis/hamburguer-saboroso-isolado-no-fundo-branco-fast-food-hamburguer-fresco-com-carne-e-queijo_90220-1063.jpg' },
+    img: 'FRANGO BURGER.png' },
   { id: 110, name: 'Kids', category: 'burguers', price: 12.00,
     desc: 'Pão brioche, carne smash de 100g, queijo cheddar, molho defumado. Acompanha fritas.',
-    img: 'https://img.freepik.com/fotos-gratis/hamburguer-saboroso-isolado-no-fundo-branco-fast-food-hamburguer-fresco-com-carne-e-queijo_90220-1063.jpg' },
+    img: 'KIDS.png' },
 
   // --- FRITAS ---
   { id: 201, name: 'Fritas P', category: 'fritas', price: 8.00,
-    desc: 'Batata frita crocante, porção pequena.', img: 'https://gastronomiacarioca.zonasul.com.br/wp-content/uploads/2023/05/batata_frita_destaque_ilustrativo_zona_sul.jpg' },
+    desc: 'Batata frita crocante, porção pequena.', img: 'FRITAS P.png' },
   { id: 202, name: 'Fritas M', category: 'fritas', price: 15.00,
-    desc: 'Batata frita crocante, porção média.', img: 'https://gastronomiacarioca.zonasul.com.br/wp-content/uploads/2023/05/batata_frita_destaque_ilustrativo_zona_sul.jpg' },
+    desc: 'Batata frita crocante, porção média.', img: 'FRITAS M.png' },
   { id: 203, name: 'Fritas Cheddar e Bacon', category: 'fritas', price: 22.00,
-    desc: 'Batata frita com corte especial, cheddar cremoso e bacon em cubos passado na chapa.', img: 'https://gastronomiacarioca.zonasul.com.br/wp-content/uploads/2023/05/batata_frita_destaque_ilustrativo_zona_sul.jpg' },
+    desc: 'Batata frita com corte especial, cheddar cremoso e bacon em cubos passado na chapa.', img: 'FRITAS CHEDDAR E BACON.png' },
   { id: 204, name: 'Porção de Macaxeira', category: 'fritas', price: 15.00,
-    desc: 'Porção de macaxeira crocante.', img: 'https://gastronomiacarioca.zonasul.com.br/wp-content/uploads/2023/05/batata_frita_destaque_ilustrativo_zona_sul.jpg' },
+    desc: 'Porção de macaxeira crocante.', img: 'PORÇÃO DE MACAXEIRA.png' },
 
   // --- JANTINHA GRILL ---
   { id: 301, name: 'Bife Acebolado', category: 'jantinha', price: 30.00,
-    desc: 'Serve 1 pessoa. Acompanha arroz branco ou baião, feijão, farofa, salada e batata.', img: 'https://reporteralessandroguerra.com/envios/cfceb274b6d6dd76d9edbf308e8a795a5b8f4c6f.JPG' },
+    desc: 'Serve 1 pessoa. Acompanha arroz branco ou baião, feijão, farofa, salada e batata.',
+    img: 'https://reporteralessandroguerra.com/envios/cfceb274b6d6dd76d9edbf308e8a795a5b8f4c6f.JPG' },
   { id: 302, name: 'Jantinha Carne de Sol', category: 'jantinha', price: 30.00,
-    desc: 'Serve 1 pessoa. Acompanha arroz branco ou baião, feijão, farofa, salada e macaxeira.', img: 'https://reporteralessandroguerra.com/envios/cfceb274b6d6dd76d9edbf308e8a795a5b8f4c6f.JPG' },
+    desc: 'Serve 1 pessoa. Acompanha arroz branco ou baião, feijão, farofa, salada e macaxeira.',
+    img: 'CARNE DE SOL COM MACAXEIRA.png' },
   { id: 303, name: 'Jantinha Frango Grill - Coxinha da Asa', category: 'jantinha', price: 27.00,
-    desc: 'Serve 1 pessoa. Acompanha arroz branco ou baião, farofa, feijão e salada.', img: 'https://reporteralessandroguerra.com/envios/cfceb274b6d6dd76d9edbf308e8a795a5b8f4c6f.JPG' },
+    desc: 'Serve 1 pessoa. Acompanha arroz branco ou baião, farofa, feijão e salada.',
+    img: 'https://reporteralessandroguerra.com/envios/cfceb274b6d6dd76d9edbf308e8a795a5b8f4c6f.JPG' },
 
   // --- CHAPAS ---
   { id: 401, name: 'Picanha na Chapa 400g', category: 'chapas', price: 95.00,
-    desc: 'Acompanha arroz, farofa, salada e batata frita.', img: 'https://vovonaoca.com.br/wp-content/uploads/2024/11/Chapa-Mista-com-Carne-Frango-e-Calabresa-Suculenta-e-Facil-de-Fazer.jpg' },
+    desc: 'Acompanha arroz, farofa, salada e batata frita.', img: 'PICANHA NA CHAPA - 400g.png' },
   { id: 402, name: 'Picanha na Chapa 600g', category: 'chapas', price: 100.00,
-    desc: 'Acompanha arroz, farofa, salada e batata frita.', img: 'https://vovonaoca.com.br/wp-content/uploads/2024/11/Chapa-Mista-com-Carne-Frango-e-Calabresa-Suculenta-e-Facil-de-Fazer.jpg' },
+    desc: 'Acompanha arroz, farofa, salada e batata frita.', img: 'PICANHA NA CHAPA - 400g.png' },
   { id: 403, name: 'Picanha na Chapa 800g', category: 'chapas', price: 130.00,
-    desc: 'Acompanha arroz, farofa, salada e batata frita.', img: 'https://vovonaoca.com.br/wp-content/uploads/2024/11/Chapa-Mista-com-Carne-Frango-e-Calabresa-Suculenta-e-Facil-de-Fazer.jpg' },
+    desc: 'Acompanha arroz, farofa, salada e batata frita.', img: 'PICANHA NA CHAPA - 400g.png' },
   { id: 404, name: 'Picanha na Chapa 1Kg', category: 'chapas', price: 160.00,
-    desc: 'Acompanha arroz, farofa, salada e batata frita.', img: 'https://vovonaoca.com.br/wp-content/uploads/2024/11/Chapa-Mista-com-Carne-Frango-e-Calabresa-Suculenta-e-Facil-de-Fazer.jpg' },
+    desc: 'Acompanha arroz, farofa, salada e batata frita.', img: 'PICANHA NA CHAPA - 400g.png' },
 
   // --- TIRA GOSTO ---
   { id: 501, name: 'Filé com Batata', category: 'tiragosto', price: 55.00,
-    desc: 'Filé mignon na chapa com batata frita crocante.', img: 'https://img.freepik.com/fotos-gratis/file-mignon-com-batata.jpg' },
+    desc: 'Filé mignon na chapa com batata frita crocante.', img: 'file.jpeg' },
   { id: 502, name: 'Carne de Sol com Macaxeira', category: 'tiragosto', price: 55.00,
-    desc: 'Carne de sol suculenta com macaxeira.', img: 'https://img.freepik.com/fotos-gratis/carne-de-sol-com-macaxeira.jpg' },
+    desc: 'Carne de sol suculenta com macaxeira.', img: 'PORÇÃO DE MACAXEIRA.png' },
   { id: 503, name: 'Frango a Passarinho', category: 'tiragosto', price: 30.00,
     desc: 'Coxinha da asa empanada na farinha de rosca temperada e frita. Acompanha molho barbecue picante. (10 unidades)',
-    img: 'https://img.freepik.com/fotos-gratis/frango-a-passarinho.jpg' },
+    img: 'frango.webp' },
   { id: 504, name: 'Calabresa com Batata', category: 'tiragosto', price: 25.00,
-    desc: 'Calabresa acebolada com batata frita.', img: 'https://img.freepik.com/fotos-gratis/calabresa-com-batata.jpg' },
+    desc: 'Calabresa acebolada com batata frita.', img: 'cala.jpg' },
 
   // --- ADICIONAIS ---
   { id: 601, name: 'Arroz Branco P', category: 'adicionais', price: 6.00,
-    desc: 'Porção pequena de arroz branco.', img: 'https://img.freepik.com/fotos-gratis/arroz-branco.jpg' },
+    desc: 'Porção pequena de arroz branco.', img: 'arroz b.jpg' },
   { id: 602, name: 'Arroz Branco M', category: 'adicionais', price: 15.00,
-    desc: 'Porção média de arroz branco.', img: 'https://img.freepik.com/fotos-gratis/arroz-branco.jpg' },
-  { id: 603, name: 'Arroz Branco G', category: 'adicionais', price: 15.00,
-    desc: 'Preço a consultar.', img: 'https://img.freepik.com/fotos-gratis/arroz-branco.jpg' },
+    desc: 'Porção média de arroz branco.', img: 'arroz b.jpg' },
+  { id: 603, name: 'Arroz Branco G', category: 'adicionais', price: 20.00,
+    desc: 'Porção grande de arroz branco.', img: 'arroz b.jpg' },
   { id: 604, name: 'Baião P', category: 'adicionais', price: 6.00,
-    desc: 'Porção pequena de baião.', img: 'https://img.freepik.com/fotos-gratis/arroz-com-feijao.jpg' },
+    desc: 'Porção pequena de baião.', img: 'arroz ba.webp' },
   { id: 605, name: 'Baião M', category: 'adicionais', price: 15.00,
-    desc: 'Porção média de baião.', img: 'https://img.freepik.com/fotos-gratis/arroz-com-feijao.jpg' },
-  { id: 606, name: 'Baião G', category: 'adicionais', price: 15.00,
-    desc: 'Preço a consultar.', img: 'https://img.freepik.com/fotos-gratis/arroz-com-feijao.jpg' },
-  { id: 607, name: 'Salada', category: 'adicionais', price: 5.00,
-    desc: 'Porção de salada.', img: 'https://img.freepik.com/fotos-gratis/salada.jpg' },
+    desc: 'Porção média de baião.', img: 'arroz ba.webp' },
+  { id: 606, name: 'Baião G', category: 'adicionais', price: 20.00,
+    desc: 'Porção grande de baião.', img: 'arroz ba.webp' },
   
   // --- ALCOÓLICOS ---
   { id: 701, name: 'Skol 600ml', category: 'alcoolico', price: 12.00,
@@ -808,45 +811,41 @@ CNPJ: 19.401.284/0001-56 | AVENIDA PRESIDENTE MEDICE, PRÓXIMO A PRAÇA DA ONÇA
 
   // --- NÃO ALCOÓLICOS ---
   { id: 801, name: 'Suco Maracujá (Copo)', category: 'bebida', price: 9.00,
-    desc: 'Copo de suco de maracujá.', img: 'https://img.freepik.com/fotos-gratis/suco-maracuja.jpg' },
+    desc: 'Copo de suco de maracujá.', img: 'suco ma.jpg' },
   { id: 802, name: 'Suco Maracujá (Jarra)', category: 'bebida', price: 27.00,
-    desc: 'Jarra de suco de maracujá.', img: 'https://img.freepik.com/fotos-gratis/suco-maracuja.jpg' },
+    desc: 'Jarra de suco de maracujá.', img: 'suco ma ja.jpg' },
   { id: 803, name: 'Suco Acerola (Copo)', category: 'bebida', price: 8.00,
-    desc: 'Copo de suco de acerola.', img: 'https://img.freepik.com/fotos-gratis/suco-acerola.jpg' },
+    desc: 'Copo de suco de acerola.', img: 'suco ace.webp' },
   { id: 804, name: 'Suco Acerola (Jarra)', category: 'bebida', price: 20.00,
-    desc: 'Jarra de suco de acerola.', img: 'https://img.freepik.com/fotos-gratis/suco-acerola.jpg' },
-  { id: 805, name: 'Suco Laranja (Copo)', category: 'bebida', price: 9.00,
-    desc: 'Copo de suco de laranja.', img: 'https://img.freepik.com/fotos-gratis/suco-laranja.jpg' },
-  { id: 806, name: 'Suco Laranja (Jarra)', category: 'bebida', price: 27.00,
-    desc: 'Jarra de suco de laranja.', img: 'https://img.freepik.com/fotos-gratis/suco-laranja.jpg' },
+    desc: 'Jarra de suco de acerola.', img: 'suco ace ja.jpg' },
   { id: 807, name: 'Coca Cola Lata 350ml', category: 'bebida', price: 6.00,
-    desc: 'Refrigerante lata 350ml.', img: 'https://img.freepik.com/fotos-gratis/refrigerante-lata.jpg' },
+    desc: 'Refrigerante lata 350ml.', img: 'coca.webp' },
   { id: 808, name: 'Coca Cola 0 350ml', category: 'bebida', price: 6.00,
-    desc: 'Refrigerante zero lata 350ml.', img: 'https://img.freepik.com/fotos-gratis/refrigerante-lata.jpg' },
+    desc: 'Refrigerante zero lata 350ml.', img: 'coca z.webp' },
   { id: 809, name: 'Fanta Laranja 350ml', category: 'bebida', price: 6.00,
-    desc: 'Refrigerante lata 350ml.', img: 'https://img.freepik.com/fotos-gratis/refrigerante-lata.jpg' },
+    desc: 'Refrigerante lata 350ml.', img: 'fanta.webp' },
   { id: 810, name: 'Guaraná 350ml', category: 'bebida', price: 6.00,
-    desc: 'Refrigerante lata 350ml.', img: 'https://img.freepik.com/fotos-gratis/refrigerante-lata.jpg' },
+    desc: 'Refrigerante lata 350ml.', img: 'guara.webp' },
   { id: 811, name: 'Água Tônica', category: 'bebida', price: 6.00,
-    desc: 'Água tônica.', img: 'https://img.freepik.com/fotos-gratis/agua-tonica.jpg' },
+    desc: 'Água tônica.', img: 'agua t.jpg' },
   { id: 812, name: 'Red Bull', category: 'bebida', price: 15.00,
-    desc: 'Energético.', img: 'https://img.freepik.com/fotos-gratis/energetico.jpg' },
+    desc: 'Energético.', img: 'red.webp' },
   { id: 813, name: 'Guaraná 1L', category: 'bebida', price: 10.00,
-    desc: 'Refrigerante 1 litro.', img: 'https://img.freepik.com/fotos-gratis/refrigerante-garrafa.jpg' },
+    desc: 'Refrigerante 1 litro.', img: 'gua1.webp' },
   { id: 814, name: 'Coca Cola 1L', category: 'bebida', price: 10.00,
-    desc: 'Refrigerante 1 litro.', img: 'https://img.freepik.com/fotos-gratis/refrigerante-garrafa.jpg' },
+    desc: 'Refrigerante 1 litro.', img: 'coca 1.jpg' },
   { id: 815, name: 'Coca Cola 2L', category: 'bebida', price: 15.00,
-    desc: 'Refrigerante 2 litros.', img: 'https://img.freepik.com/fotos-gratis/refrigerante-garrafa.jpg' },
+    desc: 'Refrigerante 2 litros.', img: 'coca2.webp' },
   { id: 816, name: 'Coca Cola 1L KS', category: 'bebida', price: 10.00,
-    desc: 'Refrigerante 1 litro KS.', img: 'https://img.freepik.com/fotos-gratis/refrigerante-garrafa.jpg' },
+    desc: 'Refrigerante 1 litro KS.', img: 'coca ks.webp' },
   { id: 817, name: 'Água com Gás', category: 'bebida', price: 6.00,
-    desc: 'Água com gás.', img: 'https://img.freepik.com/fotos-gratis/agua.jpg' },
+    desc: 'Água com gás.', img: 'agua g.webp' },
   { id: 818, name: 'Água sem Gás', category: 'bebida', price: 4.00,
-    desc: 'Água sem gás.', img: 'https://img.freepik.com/fotos-gratis/agua.jpg' },
+    desc: 'Água sem gás.', img: 'agua g.webp' },
   { id: 819, name: 'H2OH! Limão', category: 'bebida', price: 8.00,
-    desc: 'H2OH sabor limão.', img: 'https://img.freepik.com/fotos-gratis/refrigerante-garrafa.jpg' },
+    desc: 'H2OH sabor limão.', img: 'h2o l.webp' },
   { id: 820, name: 'H2OH! Limoneto', category: 'bebida', price: 8.00,
-    desc: 'H2OH sabor limoneto.', img: 'https://img.freepik.com/fotos-gratis/refrigerante-garrafa.jpg' },
+    desc: 'H2OH sabor limoneto.', img: 'h2o li.png' },
 ];
 
 
@@ -1168,58 +1167,59 @@ document.getElementById('cust-bairro').addEventListener('change', () => {
             Swal.showValidationMessage('Código Copiado!');
         }
 
-        function finalizeOrder(obs, payDetails) {
-            const name = document.getElementById('cust-name').value;
-            const phone = document.getElementById('cust-phone').value;
-            const addr = document.getElementById('cust-address').value;
-            const bairro = document.getElementById('cust-bairro').value;
-            const total = updateCartUI();
+       function finalizeOrder(obs, payDetails) {
+    const name = document.getElementById('cust-name').value;
+    const phone = document.getElementById('cust-phone').value;
+    const addr = document.getElementById('cust-address').value;
+    const bairro = document.getElementById('cust-bairro').value;
+    const total = updateCartUI();
 
-            let msg = `*🍔 NOVO PEDIDO - BURGUER GRILL*\n\n`;
-            msg += `*Cliente:* ${name}\n`;
-            msg += `*Telefone:* ${phone}\n`;
-            msg += `*Endereço:* ${addr} - ${bairro}\n`;
-            msg += `*Pagamento:* ${payDetails}\n\n`;
-            
-            msg += `*ITENS:*\n`;
-            cart.forEach(item => {
-                msg += `• 1x ${item.name} (R$ ${item.totalPrice.toFixed(2)})\n`;
-                if(item.extras.length > 0) msg += `  _Adicionais: ${item.extras.map(e => e.name).join(', ')}_\n`;
-            });
+    let msg = `*🍔 NOVO PEDIDO - BURGUER GRILL*\n\n`;
+    msg += `*Cliente:* ${name}\n`;
+    msg += `*Telefone:* ${phone}\n`;
+    msg += `*Endereço:* ${addr} - ${bairro}\n`;
+    msg += `*Pagamento:* ${payDetails}\n\n`;
+    
+    msg += `*ITENS:*\n`;
+    cart.forEach(item => {
+        msg += `• 1x ${item.name} (R$ ${item.totalPrice.toFixed(2)})\n`;
+        if(item.extras.length > 0) msg += `  _Adicionais: ${item.extras.map(e => e.name).join(', ')}_\n`;
+    });
 
-            if(obs) msg += `\n*Obs:* ${obs}\n`;
-            msg += `\n*TOTAL: R$ ${total.toFixed(2)}*`;
+    if(obs) msg += `\n*Obs:* ${obs}\n`;
+    msg += `\n*TOTAL: R$ ${total.toFixed(2)}*`;
 
-            // Salvar no Firestore (sem alterar suas funções originais, apenas chamando se disponível)
-            const itensStr = cart.map(item => {
-                const extrasStr = item.extras.length ? ` + [${item.extras.map(e=>e.name).join(', ')}]` : '';
-                return `1x ${item.name} (R$ ${item.totalPrice.toFixed(2)})${extrasStr}`;
-            }).join('; ');
-            const orderPayload = {
-                cliente: name,
-                telefone: phone,
-                endereco: addr,
-                bairro: bairro,
-                pagamento: payDetails,
-                itens: itensStr,
-                obs: obs || '',
-                total: total.toFixed(2),
-                createdAt: new Date().toISOString()
-            };
-            if (window.saveOrderToFirestore) {
-                window.saveOrderToFirestore(orderPayload).catch(()=>{ /* silencioso */ });
-            }
+    // 🔧 CORREÇÃO: salvar itens no formato nome||preço||obs
+    const itensStr = cart.map(item => {
+        const extrasStr = item.extras.map(e => `${e.name}||${e.price.toFixed(2)}||`).join(';');
+        return `${item.name}||${item.price.toFixed(2)}||${obs || ''}${extrasStr ? ';' + extrasStr : ''}`;
+    }).join(';');
 
-            const waUrl = `https://wa.me/5599992247544?text=${encodeURIComponent(msg)}`;
-            window.open(waUrl, '_blank');
-            
-            cart = [];
-            updateCartUI();
-            toggleCart();
-            Swal.fire({ icon: 'success', title: 'Pedido Enviado!', text: 'Você será redirecionado para o WhatsApp.', background: '#1a1a1a', color: '#fff' });
-        }
+    const orderPayload = {
+        cliente: name,
+        telefone: phone,
+        endereco: addr,
+        bairro: bairro,
+        pagamento: payDetails,
+        itens: itensStr,   // agora no formato correto
+        obs: obs || '',
+        total: total.toFixed(2),
+        createdAt: new Date().toISOString()
+    };
 
-        renderMenu();
+    if (window.saveOrderToFirestore) {
+        window.saveOrderToFirestore(orderPayload).catch(()=>{ /* silencioso */ });
+    }
+
+    const waUrl = `https://wa.me/5599992247544?text=${encodeURIComponent(msg)}`;
+    window.open(waUrl, '_blank');
+    
+    cart = [];
+    updateCartUI();
+    toggleCart();
+    Swal.fire({ icon: 'success', title: 'Pedido Enviado!', text: 'Você será redirecionado para o WhatsApp.', background: '#1a1a1a', color: '#fff' });
+}
+
     </script>
 
     <!-- Integração Firebase em módulo separado, sem interferir nas funções existentes -->
