@@ -704,6 +704,9 @@ CNPJ: 19.401.284/0001-56 | AVENIDA PRESIDENTE MEDICE, PRÓXIMO A PRAÇA DA ONÇA
   { id: 111, name: 'COMBO GRILL', category: 'burguers', price: 100.00,
     desc: 'Um Grill Cheddar, um Grill Clássico, um Frango Burger, um Smash Grill, 13 nuggets, uma porção de batata frita, uma Coca-Cola de 1 litro e nosso molho especial da casa. Tudo isso em um combo completo, variado e cheio de sabor!.',
     img: 'COMBO GRILL.png' },
+    { id: 112, name: 'COMBO GRILL 2', category: 'burguers', price: 35.99,
+    desc: '1 Smash Grill: (pão brioche, carne smash 100g, alface, tomate, queijo cheddar e molho defumado). 1 Burguer Grill: (carne 150g, pão brioche selado na manteiga, queijo mussarela, molho especial do chefe).2 batatas e 2 refrigerantes de 200ml',
+    img: 'combo 1.jpeg' },
   { id: 101, name: 'Grill Burguer', category: 'burguers', price: 32.00,
     desc: 'Pão brioche selado na chapa, maionese caseira, duas carnes de 170g, duplo cheddar, duplo bacon, alface, tomate, cebola reduzida na manteiga e molho especial da casa. Acompanha fritas.',
     img: 'GRILL BURGER.png' },
@@ -1168,8 +1171,8 @@ async function handleCashPayment(total, obs) {
 
 async function handlePixPayment(total, obs) {
   const payload = buildPixBRCode({
-    key: '029.630.583-90',
-    name: 'Carlos de Freitas Rocha',
+    key: '622.783.632-04',
+    name: 'Luciano Alves dos Santos',
     city: 'Local', 
     amount: total.toFixed(2)
   });
