@@ -1240,7 +1240,8 @@ function finalizeOrder(obs, payDetails) {
   // 🔧 Salvar itens no formato agrupado
   const itensStr = Object.values(grouped).map(item => {
     const extrasStr = item.extras.length ? ` + [${item.extras.map(e=>e.name).join(', ')}]` : '';
-    return `${item.qty}x ${item.name}||${(item.price * item.qty).toFixed(2)}||${obs || ''}${extrasStr}`;
+    return `${item.qty}x ${item.name}||${(item.price * item.qty).toFixed(2)}${extrasStr}`;
+
   }).join(';');
 
   const orderPayload = {
