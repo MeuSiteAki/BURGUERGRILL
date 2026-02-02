@@ -602,7 +602,12 @@ CNPJ: 19.401.284/0001-56 | AVENIDA PRESIDENTE MEDICE, PRÓXIMO A PRAÇA DA ONÇA
             <h3><i class="fas fa-receipt"></i> Pedido</h3>
             <button class="btn-close-cart" onclick="toggleCart()">&times;</button>
         </div>
-        
+        <label for="cust-delivery">Tipo de Pedido</label>
+<select id="cust-delivery">
+  <option value="delivery">Delivery</option>
+  <option value="retirada">Retirada no Local</option>
+</select>
+
         <div class="cart-items" id="cart-items"></div>
 
         <div class="cart-footer">
@@ -1112,16 +1117,16 @@ document.getElementById('cust-bairro').addEventListener('change', () => {
 
 async function startCheckoutFlow() {
   if (cart.length === 0) {
-    return Swal.fire({ 
-      icon: 'error', 
-      title: 'Carrinho vazio!', 
-      background: '#1a1a1a', 
-      color: '#fff' 
-    });
+    return Swal.fire({ icon: 'error', title: 'Carrinho vazio!', background: '#1a1a1a', color: '#fff' });
   }
 
-  const fields = ['cust-name', 'cust-phone', 'cust-address', 'cust-bairro', 'cust-payment'];
-  for (const f of fields) {
+  const deliveryType = document.getElementById('cust-delivery').value;
+  const fieldsDelivery = ['cust-name', 'cust-phone', 'cust-address', 'cust-bairro', 'cust-payment'];
+  const fieldsRetirada = ['cust-name', 'cust-phone'];
+
+  const requiredFields = deliveryType === 'retirada' ? fieldsRetirada : fieldsDelivery;
+
+  for (const f of requiredFields) {
     if (!document.getElementById(f).value) {
       return Swal.fire({ 
         icon: 'warning', 
@@ -1137,15 +1142,20 @@ async function startCheckoutFlow() {
   const obsText = window.lastObs || '';
   const paymentType = document.getElementById('cust-payment').value;
   const currentTotal = updateCartUI();
-  
-  if (paymentType === 'Dinheiro') {
-    handleCashPayment(currentTotal, obsText);
-  } else if (paymentType === 'Pix') {
-    handlePixPayment(currentTotal, obsText);
+
+  if (deliveryType === 'retirada') {
+    finalizeOrder(obsText, `Retirada no Local - ${paymentType}`);
   } else {
-    finalizeOrder(obsText, 'Cartão (Na entrega)');
+    if (paymentType === 'Dinheiro') {
+      handleCashPayment(currentTotal, obsText);
+    } else if (paymentType === 'Pix') {
+      handlePixPayment(currentTotal, obsText);
+    } else {
+      finalizeOrder(obsText, 'Cartão (Na entrega)');
+    }
   }
 }
+
 
 async function handleCashPayment(total, obs) {
   const { value: cashValue } = await Swal.fire({
@@ -1214,6 +1224,7 @@ function finalizeOrder(obs, payDetails) {
   const phone = document.getElementById('cust-phone').value;
   const addr = document.getElementById('cust-address').value;
   const bairro = document.getElementById('cust-bairro').value;
+  const deliveryType = document.getElementById('cust-delivery')?.value || 'delivery';
   const total = updateCartUI();
 
   // 🔧 Agrupar itens iguais
@@ -1230,7 +1241,13 @@ function finalizeOrder(obs, payDetails) {
   let msg = `*🍔 NOVO PEDIDO - BURGUER GRILL*\n\n`;
   msg += `*Cliente:* ${name}\n`;
   msg += `*Telefone:* ${phone}\n`;
-  msg += `*Endereço:* ${addr} - ${bairro}\n`;
+
+  if (deliveryType === 'delivery') {
+    msg += `*Endereço:* ${addr} - ${bairro}\n`;
+  } else {
+    msg += `*Tipo:* Retirada no Local\n`;
+  }
+
   msg += `*Pagamento:* ${payDetails}\n\n`;
 
   msg += `*ITENS:*\n`;
@@ -1248,15 +1265,15 @@ function finalizeOrder(obs, payDetails) {
   const itensStr = Object.values(grouped).map(item => {
     const extrasStr = item.extras.length ? ` + [${item.extras.map(e=>e.name).join(', ')}]` : '';
     return `${item.qty}x ${item.name}||${(item.price * item.qty).toFixed(2)}${extrasStr}`;
-
   }).join(';');
 
   const orderPayload = {
     cliente: name,
     telefone: phone,
-    endereco: addr,
-    bairro: bairro,
+    endereco: deliveryType === 'delivery' ? addr : '',
+    bairro: deliveryType === 'delivery' ? bairro : '',
     pagamento: payDetails,
+    tipo: deliveryType, // 🔧 novo campo para diferenciar
     itens: itensStr,
     obs: obs || '',
     total: total.toFixed(2),
