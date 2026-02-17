@@ -536,8 +536,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const closeTime = 24; // 24:00
 
         // Se for quarta-feira (day === 3), fechado
-        if (day === 3) {
-            statusText.textContent = 'Fechado (Folga de Quarta-feira) 💤';
+        if (day === 2,3) {
+            statusText.textContent = 'Fechado 💤';
             statusBanner.classList.remove('open');
             statusBanner.classList.add('closed');
             return;
