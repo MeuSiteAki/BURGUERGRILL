@@ -636,15 +636,12 @@ CNPJ: 19.401.284/0001-56 | AVENIDA PRESIDENTE MEDICE, PRÓXIMO A PRAÇA DA ONÇA
 </select>
 
 
-                <select id="cust-payment" required>
-                    <option value="">Forma de Pagamento</option>
-                    <option value="Pix">Pix (QR Code Automático)</option>
-                    <option value="Cartão">Cartão (Na entrega)</option>
-                    <option value="Dinheiro">Dinheiro (Precisa de troco?)</option>
-                </select>
+                <select id="cust-payment" style="display:none;">
+    <option value="Pix" selected>Escolha:</option>
+</select>
 
                 <button class="btn-checkout" onclick="startCheckoutFlow()">
-                    <i class="fas fa-paper-plane"></i> Enviar Pedido
+                    <i class="fas fa-paper-plane"></i> PAGAR/ENVIAR
                 </button>
             </div>
         </div>
@@ -759,6 +756,12 @@ CNPJ: 19.401.284/0001-56 | AVENIDA PRESIDENTE MEDICE, PRÓXIMO A PRAÇA DA ONÇA
     desc: 'Batata frita com corte especial, cheddar cremoso e bacon em cubos passado na chapa.', img: 'FRITAS CHEDDAR E BACON.png' },
   { id: 204, name: 'Porção de Macaxeira', category: 'fritas', price: 15.00,
     desc: 'Porção de macaxeira crocante.', img: 'PORÇÃO DE MACAXEIRA.png' },
+    { id: 205, name: 'Frango no Balde P', category: 'fritas', price: 35.00,
+    desc: 'Frango no Balde crocante, aprox.: 10 uni.', img: 'combo 3.png' },
+    { id: 206, name: 'Frango no Balde M', category: 'fritas', price: 42.00,
+    desc: 'Frango no Balde crocante, aprox.: 15 uni.', img: 'combo 3.png' },
+    { id: 207, name: 'Frango no Balde G', category: 'fritas', price: 80.00,
+    desc: 'Frango no Balde crocante, aprox.: 20 uni.', img: 'combo 3.png' },
 
   // --- JANTINHA GRILL ---
   { id: 301, name: 'Bife Acebolado', category: 'jantinha', price: 30.00,
@@ -1121,97 +1124,140 @@ async function startCheckoutFlow() {
   }
 
   const deliveryType = document.getElementById('cust-delivery').value;
-  const fieldsDelivery = ['cust-name', 'cust-phone', 'cust-address', 'cust-bairro', 'cust-payment'];
+  const fieldsDelivery = ['cust-name', 'cust-phone', 'cust-address', 'cust-bairro'];
   const fieldsRetirada = ['cust-name', 'cust-phone'];
-
   const requiredFields = deliveryType === 'retirada' ? fieldsRetirada : fieldsDelivery;
 
   for (const f of requiredFields) {
     if (!document.getElementById(f).value) {
-      return Swal.fire({ 
-        icon: 'warning', 
-        title: 'Faltam dados', 
-        text: 'Preencha todos os campos obrigatórios!', 
-        background: '#1a1a1a', 
-        color: '#fff', 
-        confirmButtonColor: '#ffbf00' 
-      });
+      return Swal.fire({ icon: 'warning', title: 'Faltam dados', text: 'Preencha todos os campos obrigatórios!', background: '#1a1a1a', color: '#fff', confirmButtonColor: '#ffbf00' });
     }
   }
 
   const obsText = window.lastObs || '';
-  const paymentType = document.getElementById('cust-payment').value;
-  const currentTotal = updateCartUI();
+  const totalPedido = updateCartUI();
 
-  if (deliveryType === 'retirada') {
-    finalizeOrder(obsText, `Retirada no Local - ${paymentType}`);
-  } else {
-    if (paymentType === 'Dinheiro') {
-      handleCashPayment(currentTotal, obsText);
-    } else if (paymentType === 'Pix') {
-      handlePixPayment(currentTotal, obsText);
-    } else {
-      finalizeOrder(obsText, 'Cartão (Na entrega)');
+  // --- TELA DE PAGAMENTO MISTO ---
+  let pagamentos = [];
+  let saldoRestante = totalPedido;
+
+  window._addPagDelivery = function(metodo) {
+    const input = document.getElementById('swal-val-delivery');
+    let val = parseFloat(input.value || '0');
+    if (isNaN(val) || val <= 0) return;
+    if (val > saldoRestante + 0.05) { alert('Valor maior que o saldo!'); return; }
+
+    pagamentos.push({ metodo, valor: val });
+    saldoRestante -= val;
+    input.value = '';
+    _atualizarTelaPag();
+  };
+
+  window._preencherTudoDelivery = function() {
+    const input = document.getElementById('swal-val-delivery');
+    input.value = saldoRestante.toFixed(2);
+};
+
+  const _atualizarTelaPag = () => {
+    const elSaldo = document.getElementById('swal-saldo-delivery');
+    if (elSaldo) elSaldo.innerText = `R$ ${saldoRestante.toFixed(2).replace('.', ',')}`;
+
+    const elLista = document.getElementById('swal-lista-delivery');
+    if (elLista) {
+      elLista.innerHTML = pagamentos.map(p => `
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:#10b981;padding:4px 0;border-bottom:1px solid #333;">
+          <span>${p.metodo}</span>
+          <span>R$ ${p.valor.toFixed(2).replace('.', ',')}</span>
+        </div>`).join('');
     }
-  }
-}
+  };
 
+  const htmlPag = `
+    <div style="text-align:left;">
+      <div style="background:#222;padding:12px;border-radius:10px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="color:#aaa;">Total do pedido:</span>
+        <strong style="color:#fff;font-size:1.1rem;">R$ ${totalPedido.toFixed(2).replace('.', ',')}</strong>
+      </div>
+      <div style="background:#222;padding:12px;border-radius:10px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="color:#ff4444;">Falta pagar:</span>
+        <strong id="swal-saldo-delivery" style="color:#ff4444;font-size:1.2rem;">R$ ${saldoRestante.toFixed(2).replace('.', ',')}</strong>
+      </div>
 
-async function handleCashPayment(total, obs) {
-  const { value: cashValue } = await Swal.fire({
-    title: 'Pagamento em Dinheiro',
-    text: `O total é R$ ${total.toFixed(2).replace('.', ',')}. Você vai pagar com quanto?`,
-    input: 'number',
-    inputAttributes: { min: total, step: "0.01" },
-    background: '#1a1a1a', color: '#fff',
-    confirmButtonText: 'Calcular Troco', confirmButtonColor: '#25d366',
-    showCancelButton: true
+      <div style="background:#222;padding:12px;border-radius:10px;margin-bottom:10px;">
+        <div style="display:flex;gap:6px;margin-bottom:10px;">
+          <input id="swal-val-delivery" type="number" placeholder="0.00" min="0.01" step="0.01"
+  style="flex:1;background:#333;color:#fff;border:1px solid #444;border-radius:6px;padding:8px;">
+          <button onclick="window._preencherTudoDelivery()" style="background:#444;color:#fff;border:none;border-radius:6px;padding:0 12px;cursor:pointer;">Tudo</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <button onclick="window._addPagDelivery('PIX')" style="background:#1a3a2a;color:#25d366;border:1px solid #25d366;border-radius:6px;padding:10px;cursor:pointer;font-weight:bold;">PIX</button>
+          <button onclick="window._addPagDelivery('DINHEIRO')" style="background:#1a2a3a;color:#60a5fa;border:1px solid #60a5fa;border-radius:6px;padding:10px;cursor:pointer;font-weight:bold;">DINHEIRO</button>
+          <button onclick="window._addPagDelivery('DÉBITO')" style="background:#2a1a3a;color:#c084fc;border:1px solid #c084fc;border-radius:6px;padding:10px;cursor:pointer;font-weight:bold;">DÉBITO</button>
+          <button onclick="window._addPagDelivery('CRÉDITO')" style="background:#3a1a1a;color:#f87171;border:1px solid #f87171;border-radius:6px;padding:10px;cursor:pointer;font-weight:bold;">CRÉDITO</button>
+        </div>
+      </div>
+
+      <div id="swal-lista-delivery" style="max-height:100px;overflow-y:auto;"></div>
+    </div>
+  `;
+
+  const { isConfirmed } = await Swal.fire({
+    title: 'Forma de Pagamento',
+    html: htmlPag,
+    background: '#1a1a1a',
+    color: '#fff',
+    showCancelButton: true,
+    confirmButtonText: 'Confirmar Pedido',
+    confirmButtonColor: '#25d366',
+    cancelButtonText: 'Voltar',
+    didOpen: () => {
+      // permite digitar valor e apertar Enter para adicionar no último método clicado
+    }
   });
 
-  if (cashValue) {
-    const paid = parseFloat(cashValue);
-    if (paid < total) {
-      return Swal.fire({icon: 'error', title:'Valor insuficiente', background:'#1a1a1a', color:'#fff'});
-    }
-    const change = paid - total;
-    
-    await Swal.fire({
-      title: 'Confirmação',
-      html: `<p><i class="fas fa-money-bill-wave" style="color:#ffbf00;"></i> Total: R$ ${total.toFixed(2)}</p>
-             <p><i class="fas fa-hand-holding-usd" style="color:#ffbf00;"></i> Pagamento: R$ ${paid.toFixed(2)}</p>
-             <h3 style="color:#ffbf00"><i class="fas fa-coins"></i> Troco: R$ ${change.toFixed(2)}</h3>`,
-      background: '#1a1a1a', color: '#fff',
-      confirmButtonText: 'Enviar Pedido', confirmButtonColor: '#25d366'
+  delete window._addPagDelivery;
+  delete window._preencherTudoDelivery;
+
+  if (!isConfirmed || pagamentos.length === 0) return;
+
+  // Monta string de pagamento igual ao painel das mesas
+  const payDetails = pagamentos.map(p => `${p.metodo}: R$ ${p.valor.toFixed(2)}`).join(' | ');
+
+  // Se tiver PIX na lista, mostra QR Code antes de finalizar
+  const temPix = pagamentos.find(p => p.metodo === 'PIX');
+  if (temPix) {
+    const payload = buildPixBRCode({
+      key: '19.401.284/0001-56',
+      name: 'Luciano Alves dos Santos',
+      city: 'Local',
+      amount: temPix.valor.toFixed(2)
     });
 
-    finalizeOrder(obs, `Dinheiro (Troco para R$ ${paid.toFixed(2)} - Troco: R$ ${change.toFixed(2)})`);
+    await Swal.fire({
+      title: `PIX: R$ ${temPix.valor.toFixed(2).replace('.', ',')}`,
+      background: '#1a1a1a', color: '#fff',
+      html: `
+        <div id="pix-qr" style="display:flex;justify-content:center;margin:20px auto;padding:16px;background:#fff;border-radius:10px;width:fit-content;"></div>
+        <div id="pix-payload" style="background:#222;padding:8px;border-radius:6px;font-size:0.7rem;word-break:break-all;color:#aaa;">${payload}</div>
+        <button onclick="navigator.clipboard.writeText(document.getElementById('pix-payload').innerText);Swal.showValidationMessage('Copiado!')" 
+          style="margin-top:10px;background:#25d366;color:#fff;border:none;border-radius:6px;padding:10px 20px;cursor:pointer;font-weight:bold;">
+          <i class="fas fa-copy"></i> Copiar Código PIX
+        </button>
+      `,
+      didOpen: () => {
+        new QRCode(document.getElementById('pix-qr'), { text: payload, width: 220, height: 220, correctLevel: QRCode.CorrectLevel.M });
+      },
+      confirmButtonText: 'Já Paguei, Enviar Pedido',
+      confirmButtonColor: '#25d366'
+    });
   }
+
+  finalizeOrder(obsText, payDetails);
 }
 
-async function handlePixPayment(total, obs) {
-  const payload = buildPixBRCode({
-    key: '19.401.284/0001-56',
-    name: 'Luciano Alves dos Santos',
-    city: 'Local', 
-    amount: total.toFixed(2)
-  });
-
-  await Swal.fire({
-    title: 'Pagamento Pix',
-    background: '#1a1a1a', color: '#fff',
-    html: `
-      <div class="qr-wrapper" id="pix-qr"></div>
-      <div class="pix-code-box" id="pix-payload">${payload}</div>
-      <button class="btn-checkout" onclick="copyPix()"><i class="fas fa-copy"></i> Copiar Código Pix</button>
-    `,
-    didOpen: () => {
-      new QRCode(document.getElementById("pix-qr"), { text: payload, width: 180, height: 180 });
-    },
-    confirmButtonText: 'Já Paguei / Enviar Pedido',
-    confirmButtonColor: '#25d366'
-  });
-  finalizeOrder(obs, 'Pix (QR Code)');
-}
+// Mantém as antigas como vazias para não quebrar nada caso sejam chamadas em outro lugar
+async function handleCashPayment(total, obs) {}
+async function handlePixPayment(total, obs) {}
 
 window.copyPix = () => {
   const text = document.getElementById('pix-payload').innerText;
@@ -1394,3 +1440,5 @@ document.addEventListener('contextmenu', function (event) { event.preventDefault
 <!-- { id: 112, name: 'COMBO GRILL', category: 'burguers', price: 35.99,
     desc: '1 Smash Grill: (pão brioche, carne smash 100g, alface, tomate, queijo cheddar e molho defumado). 1 Burguer Grill: (carne 150g, pão brioche selado na manteiga, queijo mussarela, molho especial do chefe).2 batatas e 2 refrigerantes de 200ml',
     img: 'combo 1.jpeg' }, -->
+
+   
